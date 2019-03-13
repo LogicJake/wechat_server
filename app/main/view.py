@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-02-15 20:04:12
-# @Last Modified time: 2019-03-13 20:17:07
+# @Last Modified time: 2019-03-13 20:40:54
 from flask import Blueprint, request
 from app.main.operations import init_room, enter_room, update_room
 from app.models.verify import Verify
@@ -29,11 +29,11 @@ def message():
             content = message.content
             ss = content.split(' ')
 
-            if ss[0] == '/new':
+            if ss[0] == 'new':
                 reply_content = parse_new(message)
-            elif ss[0] == '/enter':
+            elif ss[0] == 'enter':
                 reply_content = parse_enter(message)
-            elif ss[0] == '/change':
+            elif ss[0] == 'change':
                 reply_content = parse_change(message)
             else:
                 reply_content = '???????'
@@ -84,8 +84,7 @@ def parse_new(message):
     if len(ss) < 2:
         return '命令格式错误，至少需要指定参与人数'
 
-    uid = message['from']['id']
-    user_name = message['from']['username']
+    user_name = uid
 
     try:
         num = int(ss[1])
