@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-02-15 20:04:12
-# @Last Modified time: 2019-03-13 18:55:31
+# @Last Modified time: 2019-03-13 19:51:48
 from flask import Blueprint, request
 from app.main.operations import init_room, enter_room, update_room
 from app.main.message import send_message
 from app.models.verify import Verify
+from app.models.post import Post
 
 bp = Blueprint('main', __name__)
 
@@ -23,7 +24,11 @@ def message():
         return message.return_code
 
     elif request.method == "POST":
-        pass
+        message = Post(request)
+
+        if message.msg_type == 'text':
+            content = message.content
+            print(content)
 
 
 def parse_message(message):
