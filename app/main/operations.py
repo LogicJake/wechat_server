@@ -1,24 +1,21 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-03-09 15:47:02
-# @Last Modified time: 2019-03-13 17:07:46
+# @Last Modified time: 2019-03-13 20:14:48
 from app import db
 import time
 from app.models.room import Room
 from app.models.member import Member
 import os
 from random import choice, sample
-from app.main.message import send_message
 
 
 def init_room(num, uid, user_name, good_word=None, bad_word=None):
     delete_room()
     if num < 4:
-        send_message(uid, '不能少于4个人')
-        return
+        return '不能少于4个人'
     elif num > 13:
-        send_message(uid, '不能多于13个人')
-        return
+        return '不能多于13个人'
 
     exist_room = Room.query.filter_by(owner_id=uid).all()
 
@@ -61,15 +58,14 @@ def init_room(num, uid, user_name, good_word=None, bad_word=None):
 
     message = wrap_new_message(room_id, bad_num, num,
                                bad_word, good_word, bad_number)
-    send_message(uid, message)
+    return message
 
 
 def enter_room(room_id, uid):
     delete_room()
     exist_room = Room.query.filter_by(room_id=room_id).first()
     if exist_room is None:
-        send_message(uid, '房间不存在，请法官重新建房。')
-        return
+        return '房间不存在，请法官重新建房。'
 
     room_owner = exist_room.owner_name
     owner_id = exist_room.owner_id
@@ -81,8 +77,7 @@ def enter_room(room_id, uid):
     bad_word = exist_room.bad_word
 
     if uid == owner_id:
-        send_message(uid, '法官凑什么热闹。')
-        return
+        return '法官凑什么热闹。'
 
     has_come = Member.query.filter_by(room_id=room_id, uid=uid).first()
     if has_come is not None:
@@ -93,8 +88,7 @@ def enter_room(room_id, uid):
             word = good_word
         message = wrap_enter_message(
             room_id, room_owner, word, has_come.index, bad_num, num)
-        send_message(uid, message)
-        return
+        return message
 
     member = Member(room_id, uid)
     db.session.add(member)
@@ -110,8 +104,7 @@ def enter_room(room_id, uid):
     if index >= num:
         db.session.delete(room_members[index])
         db.session.commit()
-        send_message(uid, '房间人数已满')
-        return
+        return '房间人数已满'
 
     your_number = str(index + 1)
     if your_number in bad_number:
@@ -121,9 +114,10 @@ def enter_room(room_id, uid):
     member.index = your_number
     db.session.add(member)
     db.session.commit()
+
     message = wrap_enter_message(
         room_id, room_owner, word, your_number, bad_num, num)
-    send_message(uid, message)
+    return message
 
 
 def update_room(uid, good_word=None, bad_word=None):
@@ -131,8 +125,7 @@ def update_room(uid, good_word=None, bad_word=None):
     exist_room = Room.query.filter_by(owner_id=uid).first()
 
     if exist_room is None:
-        send_message(uid, '请先创建房间')
-        return
+        return '请先创建房间'
 
     if good_word is None and bad_word is None:
         words_path = os.path.join(
@@ -165,7 +158,7 @@ def update_room(uid, good_word=None, bad_word=None):
 
     message = wrap_update_message(room_id, bad_num, num,
                                   bad_word, good_word, bad_number)
-    send_message(uid, message)
+    return message
 
 
 def delete_room():

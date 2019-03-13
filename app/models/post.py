@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-03-13 19:45:02
-# @Last Modified time: 2019-03-13 19:51:03
+# @Last Modified time: 2019-03-13 19:57:28
 from lxml import etree
 
 
 class Post():
 
     def __init__(self, req):
-        super(Post, self).__init__(req)
         self.xml = etree.fromstring(req.stream.read())
         self.msg_type = self.xml.find("MsgType").text
         self.to_user_name = self.xml.find("ToUserName").text
@@ -25,7 +24,7 @@ class Post():
             'location': ['Location_X', 'Location_Y', 'Scale', 'Label'],
             'link': ['Title', 'Description', 'Url'],
         }
-        attributes = hash_table[self.MsgType]
+        attributes = hash_table[self.msg_type]
         self.content = self.xml.find(
             "Content").text if 'Content' in attributes else '抱歉，暂未支持此消息。'
         self.pic_url = self.xml.find(
