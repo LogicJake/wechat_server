@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-03-09 15:47:02
-# @Last Modified time: 2019-03-13 20:43:54
+# @Last Modified time: 2019-03-13 20:49:35
 from app import db
 import time
 from app.models.room import Room
@@ -67,7 +67,6 @@ def enter_room(room_id, uid):
     if exist_room is None:
         return '房间不存在，请法官重新建房。'
 
-    room_owner = exist_room.owner_name
     owner_id = exist_room.owner_id
     num = exist_room.num
     bad_number = exist_room.bad_number
