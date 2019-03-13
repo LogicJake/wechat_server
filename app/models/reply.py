@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-03-13 20:07:16
-# @Last Modified time: 2019-03-13 20:20:19
+# @Last Modified time: 2019-03-13 20:26:49
 import time
 from app.models.post import Post
 
@@ -10,13 +10,14 @@ class Reply(Post):
 
     def __init__(self, req):
         super(Reply, self).__init__(req)
-        self.xml = f'<xml><ToUserName><![CDATA[{self.from_user_name}]]></ToUserName>' \
-            f'<FromUserName><![CDATA[{self.to_user_name}]]></FromUserName>' \
-            f'<CreateTime>{str(int(time()))}</CreateTime>'
+        self.xml = '<xml><ToUserName><![CDATA[{}]]></ToUserName>' \
+            '<FromUserName><![CDATA[{}]]></FromUserName>' \
+            '<CreateTime>{}</CreateTime>'.format(
+                self.from_user_name, self.to_user_name, str(int(time())))
 
     def text(self, Content):
-        self.xml += f'<MsgType><![CDATA[text]]></MsgType>' \
-            f'<Content><![CDATA[{Content}]]></Content></xml>'
+        self.xml += '<MsgType><![CDATA[text]]></MsgType>' \
+            '<Content><![CDATA[{}]]></Content></xml>'.format(Content)
 
     def image(self, MediaId):
         pass
