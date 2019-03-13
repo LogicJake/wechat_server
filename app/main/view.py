@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-02-15 20:04:12
-# @Last Modified time: 2019-03-13 18:38:50
+# @Last Modified time: 2019-03-13 18:55:31
 from flask import Blueprint, request
 from app.main.operations import init_room, enter_room, update_room
 from app.main.message import send_message
+from app.models.verify import Verify
 
 bp = Blueprint('main', __name__)
 
@@ -14,13 +15,15 @@ def test():
     return 'test'
 
 
-@bp.route('/message', methods=['POST'])
+@bp.route('/message', methods=['GET', 'POST'])
 def message():
-    data = request.get_json()
+    if request.method == "GET":
+        message = Verify(request)
+        message.verify()
+        return message.return_code
 
-    if 'message' in data.keys():
-        parse_message(data['message'])
-    return 'ok'
+    elif request.method == "POST":
+        pass
 
 
 def parse_message(message):
