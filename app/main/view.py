@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-02-15 20:04:12
-# @Last Modified time: 2019-03-13 20:16:03
+# @Last Modified time: 2019-03-13 20:17:07
 from flask import Blueprint, request
 from app.main.operations import init_room, enter_room, update_room
 from app.models.verify import Verify
-from app.models.post import Reply
+from app.models.reply import Reply
 
 bp = Blueprint('main', __name__)
 

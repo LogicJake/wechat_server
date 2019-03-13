@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-03-13 20:07:16
-# @Last Modified time: 2019-03-13 20:09:05
+# @Last Modified time: 2019-03-13 20:20:19
+import time
 from app.models.post import Post
 
 
 class Reply(Post):
 
     def __init__(self, req):
-        self.xml = f'<xml><ToUserName><![CDATA[{self.FromUserName}]]></ToUserName>' \
-            f'<FromUserName><![CDATA[{self.ToUserName}]]></FromUserName>' \
-            f'<CreateTime>{str(int(time.time()))}</CreateTime>'
+        super(Reply, self).__init__(req)
+        self.xml = f'<xml><ToUserName><![CDATA[{self.from_user_name}]]></ToUserName>' \
+            f'<FromUserName><![CDATA[{self.to_user_name}]]></FromUserName>' \
+            f'<CreateTime>{str(int(time()))}</CreateTime>'
 
     def text(self, Content):
         self.xml += f'<MsgType><![CDATA[text]]></MsgType>' \
