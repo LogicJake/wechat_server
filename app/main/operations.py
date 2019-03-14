@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-03-09 15:47:02
-# @Last Modified time: 2019-03-14 19:28:17
+# @Last Modified time: 2019-03-14 19:30:53
 from app import db
 import time
 from app.models.room import Room
@@ -77,7 +77,7 @@ def enter_room(room_id, uid):
     owner_id = exist_room.owner_id
     num = exist_room.num
     bad_number = exist_room.bad_number
-    white_number = exist_room.white_number
+    white_number = exist_room.white
     bad_number = bad_number.split(',')
     bad_num = len(bad_number)
     good_word = exist_room.good_word
