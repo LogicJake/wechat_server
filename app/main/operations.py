@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-03-09 15:47:02
-# @Last Modified time: 2019-03-14 19:24:36
+# @Last Modified time: 2019-03-14 19:28:17
 from app import db
 import time
 from app.models.room import Room
@@ -151,7 +151,7 @@ def update_room(uid, good_word=None, bad_word=None):
 
     num = exist_room.num
     room_id = exist_room.room_id
-    white = exist_room.white_number
+    white = exist_room.white
     bad_num = 0
     if num < 7:
         bad_num = 1
@@ -174,7 +174,7 @@ def update_room(uid, good_word=None, bad_word=None):
     exist_room.good_word = good_word
     exist_room.bad_word = bad_word
     exist_room.bad_number = str_bad_number
-    exist_room.white_number = white_number
+    exist_room.white = white_number
     db.session.add(exist_room)
     db.session.commit()
 
@@ -204,13 +204,14 @@ def wrap_update_message(room_id, bad_num, num, bad_word, good_word, bad_number, 
     bad_people = [n + '号' for n in bad_number]
     bad_people = '，'.join(bad_people)
 
+    white_num = 0 if white_number == -1 else 1
     insert_white_1 = '' if white_number == -1 else '，1个白板'
     insert_white_2 = '' if white_number == - \
         1 else '白  板：{}号\n'.format(white_number)
 
     message = '换词成功！您是法官，请让参与游戏的玩家对我回复【enter {}】更新自己的词语。\n\n房  号：{}\n配  置：{}个卧底，{}个平民{}\n卧底词：{}\n平民词：{}\n卧  底：{}\n{}\n回复【change】，换一组词；回复【change 平民词 卧底词】，自己出题。（一局结束后，不必重新建房，回复【change】直接换词。半小时内无操作的房间将被删除）'.\
         format(room_id, room_id, bad_num, num -
-               bad_num, insert_white_1, bad_word, good_word, bad_people, insert_white_2)
+               bad_num - white_num, insert_white_1, bad_word, good_word, bad_people, insert_white_2)
     return message
 
 
@@ -218,13 +219,14 @@ def wrap_new_message(room_id, bad_num, num, bad_word, good_word, bad_number, whi
     bad_people = [n + '号' for n in bad_number]
     bad_people = '，'.join(bad_people)
 
+    white_num = 0 if white_number == -1 else 1
     insert_white_1 = '' if white_number == -1 else '，1个白板'
     insert_white_2 = '' if white_number == - \
         1 else '白  板：{}号\n'.format(white_number)
 
     message = '建房成功！您是法官，请让参与游戏的玩家对我回复【enter {}】进入房间。\n\n房  号：{}\n配  置：{}个卧底，{}个平民{}\n卧底词：{}\n平民词：{}\n卧  底：{}\n{}\n回复【change】，换一组词；回复【change 平民词 卧底词】，自己出题。（一局结束后，不必重新建房，回复【change】直接换词。半小时内无操作的房间将被删除）'.\
         format(room_id, room_id, bad_num, num -
-               bad_num, insert_white_1, bad_word, good_word, bad_people, insert_white_2)
+               bad_num - white_num, insert_white_1, bad_word, good_word, bad_people, insert_white_2)
     return message
 
 
