@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-03-09 15:47:02
-# @Last Modified time: 2019-03-14 19:30:53
+# @Last Modified time: 2019-03-14 19:45:32
 from app import db
 import time
 from app.models.room import Room
@@ -89,7 +89,7 @@ def enter_room(room_id, uid):
     has_come = Member.query.filter_by(room_id=room_id, uid=uid).first()
     if has_come is not None:
         your_number = has_come.index
-        if white_number != -1 and your_number == str(white_number):
+        if white_number != -1 and your_number == white_number:
             word = ''
         else:
             if str(your_number) in bad_number:
@@ -116,8 +116,8 @@ def enter_room(room_id, uid):
         db.session.commit()
         return '房间人数已满'
 
-    your_number = str(index + 1)
-    if white_number != -1 and your_number == str(white_number):
+    your_number = index + 1
+    if white_number != -1 and your_number == white_number:
         word = ''
     else:
         if str(your_number) in bad_number:
@@ -232,7 +232,8 @@ def wrap_new_message(room_id, bad_num, num, bad_word, good_word, bad_number, whi
 
 def wrap_enter_message(room_id, word, number, bad_num, num, white_number):
     insert_white = '' if white_number == -1 else '，1个白板'
+    white_num = 0 if white_number == -1 else 1
 
     message = '房  号：{}\n词  语：{}\n你  是：{}号\n配  置：{}个卧底，{}个平民{}'\
-        .format(room_id, word, number, bad_num, num - bad_num, insert_white)
+        .format(room_id, word, number, bad_num, num - bad_num - white_num, insert_white)
     return message
