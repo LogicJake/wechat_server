@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-03-09 15:47:02
-# @Last Modified time: 2019-03-13 20:49:35
+# @Last Modified time: 2019-03-14 19:17:54
 from app import db
 import time
 from app.models.room import Room
@@ -10,7 +10,7 @@ import os
 from random import choice, sample
 
 
-def init_room(num, uid, user_name, good_word=None, bad_word=None):
+def init_room(num, uid, user_name, good_word=None, bad_word=None, white=False):
     delete_room()
     if num < 4:
         return '不能少于4个人'
@@ -47,17 +47,24 @@ def init_room(num, uid, user_name, good_word=None, bad_word=None):
     elif num >= 7:
         bad_num = 2
 
-    bad_number = sample(range(num), bad_num)
+    if white:
+        bad_number = sample(range(num), bad_num + 1)
+        white_number = bad_number[-1] + 1
+        bad_number = bad_number[:-1]
+    else:
+        white_number = -1
+        bad_number = sample(range(num), bad_num)
+
     bad_number = [str(n + 1) for n in bad_number]
     str_bad_number = ','.join(bad_number)
 
     new_room = Room(room_id, num, good_word, bad_word,
-                    str_bad_number, user_name, uid)
+                    str_bad_number, user_name, uid, white_number)
     db.session.add(new_room)
     db.session.commit()
 
     message = wrap_new_message(room_id, bad_num, num,
-                               bad_word, good_word, bad_number)
+                               bad_word, good_word, bad_number, white_number)
     return message
 
 
@@ -70,6 +77,7 @@ def enter_room(room_id, uid):
     owner_id = exist_room.owner_id
     num = exist_room.num
     bad_number = exist_room.bad_number
+    white_number = exist_room.white_number
     bad_number = bad_number.split(',')
     bad_num = len(bad_number)
     good_word = exist_room.good_word
@@ -81,12 +89,15 @@ def enter_room(room_id, uid):
     has_come = Member.query.filter_by(room_id=room_id, uid=uid).first()
     if has_come is not None:
         your_number = has_come.index
-        if str(your_number) in bad_number:
-            word = bad_word
+        if white_number != -1 and your_number == str(white_number):
+            word = ''
         else:
-            word = good_word
+            if str(your_number) in bad_number:
+                word = bad_word
+            else:
+                word = good_word
         message = wrap_enter_message(
-            room_id, word, has_come.index, bad_num, num)
+            room_id, word, has_come.index, bad_num, num, white_number)
         return message
 
     member = Member(room_id, uid)
@@ -106,20 +117,23 @@ def enter_room(room_id, uid):
         return '房间人数已满'
 
     your_number = str(index + 1)
-    if your_number in bad_number:
-        word = bad_word
+    if white_number != -1 and your_number == str(white_number):
+        word = ''
     else:
-        word = good_word
+        if str(your_number) in bad_number:
+            word = bad_word
+        else:
+            word = good_word
     member.index = your_number
     db.session.add(member)
     db.session.commit()
 
     message = wrap_enter_message(
-        room_id, word, your_number, bad_num, num)
+        room_id, word, your_number, bad_num, num, white_number)
     return message
 
 
-def update_room(uid, good_word=None, bad_word=None):
+def update_room(uid, good_word=None, bad_word=None, white=False):
     delete_room()
     exist_room = Room.query.filter_by(owner_id=uid).first()
 
@@ -143,7 +157,14 @@ def update_room(uid, good_word=None, bad_word=None):
     elif num >= 7:
         bad_num = 2
 
-    bad_number = sample(range(num), bad_num)
+    if white:
+        bad_number = sample(range(num), bad_num + 1)
+        white_number = bad_number[-1] + 1
+        bad_number = bad_number[:-1]
+    else:
+        white_number = -1
+        bad_number = sample(range(num), bad_num)
+
     bad_number = [str(n + 1) for n in bad_number]
     str_bad_number = ','.join(bad_number)
 
@@ -152,11 +173,12 @@ def update_room(uid, good_word=None, bad_word=None):
     exist_room.good_word = good_word
     exist_room.bad_word = bad_word
     exist_room.bad_number = str_bad_number
+    exist_room.white_number = white_number
     db.session.add(exist_room)
     db.session.commit()
 
     message = wrap_update_message(room_id, bad_num, num,
-                                  bad_word, good_word, bad_number)
+                                  bad_word, good_word, bad_number, white_number)
     return message
 
 
@@ -177,27 +199,37 @@ def delete_room():
             break
 
 
-def wrap_update_message(room_id, bad_num, num, bad_word, good_word, bad_number):
+def wrap_update_message(room_id, bad_num, num, bad_word, good_word, bad_number, white_number):
     bad_people = [n + '号' for n in bad_number]
     bad_people = '，'.join(bad_people)
 
-    message = '换词成功！您是法官，请让参与游戏的玩家对我回复【enter {}】更新自己的词语。\n\n房  号：{}\n配  置：{}个卧底，{}个平民\n卧底词：{}\n平民词：{}\n卧  底：{}\n\n回复【change】，换一组词；回复【change 平民词 卧底词】，自己出题。（一局结束后，不必重新建房，回复【change】直接换词。半小时内无操作的房间将被删除）'.\
+    insert_white_1 = '' if white_number == -1 else '，1个白板'
+    insert_white_2 = '' if white_number == - \
+        1 else '白  板：{}号\n'.format(white_number)
+
+    message = '换词成功！您是法官，请让参与游戏的玩家对我回复【enter {}】更新自己的词语。\n\n房  号：{}\n配  置：{}个卧底，{}个平民{}\n卧底词：{}\n平民词：{}\n卧  底：{}\n{}\n回复【change】，换一组词；回复【change 平民词 卧底词】，自己出题。（一局结束后，不必重新建房，回复【change】直接换词。半小时内无操作的房间将被删除）'.\
         format(room_id, room_id, bad_num, num -
-               bad_num, bad_word, good_word, bad_people)
+               bad_num, insert_white_1, bad_word, good_word, bad_people, insert_white_2)
     return message
 
 
-def wrap_new_message(room_id, bad_num, num, bad_word, good_word, bad_number):
+def wrap_new_message(room_id, bad_num, num, bad_word, good_word, bad_number, white_number):
     bad_people = [n + '号' for n in bad_number]
     bad_people = '，'.join(bad_people)
 
-    message = '建房成功！您是法官，请让参与游戏的玩家对我回复【enter {}】进入房间。\n\n房  号：{}\n配  置：{}个卧底，{}个平民\n卧底词：{}\n平民词：{}\n卧  底：{}\n\n回复【change】，换一组词；回复【change 平民词 卧底词】，自己出题。（一局结束后，不必重新建房，回复【change】直接换词。半小时内无操作的房间将被删除）'.\
+    insert_white_1 = '' if white_number == -1 else '，1个白板'
+    insert_white_2 = '' if white_number == - \
+        1 else '白  板：{}号\n'.format(white_number)
+
+    message = '建房成功！您是法官，请让参与游戏的玩家对我回复【enter {}】进入房间。\n\n房  号：{}\n配  置：{}个卧底，{}个平民{}\n卧底词：{}\n平民词：{}\n卧  底：{}\n{}\n回复【change】，换一组词；回复【change 平民词 卧底词】，自己出题。（一局结束后，不必重新建房，回复【change】直接换词。半小时内无操作的房间将被删除）'.\
         format(room_id, room_id, bad_num, num -
-               bad_num, bad_word, good_word, bad_people)
+               bad_num, insert_white_1, bad_word, good_word, bad_people, insert_white_2)
     return message
 
 
-def wrap_enter_message(room_id, word, number, bad_num, num):
-    message = '房  号：{}\n词  语：{}\n你  是：{}号\n配  置：{}个卧底，{}个平民'\
-        .format(room_id, word, number, bad_num, num - bad_num)
+def wrap_enter_message(room_id, word, number, bad_num, num, white_number):
+    insert_white = '' if white_number == -1 else '，1个白板'
+
+    message = '房  号：{}\n词  语：{}\n你  是：{}号\n配  置：{}个卧底，{}个平民{}'\
+        .format(room_id, word, number, bad_num, num - bad_num, insert_white)
     return message

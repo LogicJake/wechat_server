@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-02-15 20:04:12
-# @Last Modified time: 2019-03-13 20:40:54
+# @Last Modified time: 2019-03-14 18:58:48
 from flask import Blueprint, request
 from app.main.operations import init_room, enter_room, update_room
 from app.models.verify import Verify
@@ -92,13 +92,33 @@ def parse_new(message):
         return '命令格式错误，人数只能是数字'
 
     if len(ss) > 2:
-        if len(ss) != 4:
-            return '命令格式错误，如果需要自定义词语，请输入两个词'
+        if len(ss) == 3:
+            try:
+                white = int(ss[2])
+                if white == 1:
+                    return init_room(num, uid, user_name, white=True)
+                else:
+                    return '命令格式不正确'
+            except ValueError:
+                return '命令格式不正确'
 
-        else:
+        if len(ss) == 4:
             good_word = ss[2]
             bad_word = ss[3]
             return init_room(num, uid, user_name, good_word, bad_word)
+        if len(ss) == 5:
+            try:
+                good_word = ss[2]
+                bad_word = ss[3]
+                white = int(ss[4])
+                if white == 1:
+                    return init_room(num, uid, user_name, good_word, bad_word, True)
+                else:
+                    return '命令格式不正确'
+            except ValueError:
+                return '命令格式不正确'
+        else:
+            return '你输这么多参数干嘛?'
 
     else:
         return init_room(num, uid, user_name)
