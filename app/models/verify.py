@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-03-13 18:51:53
-# @Last Modified time: 2019-03-13 18:54:53
+# @Last Modified time: 2019-03-14 20:28:26
 import hashlib
 import os
+import requests
+import json
 
 
 class Message(object):
@@ -31,3 +33,10 @@ class Verify(Message):
         hashcode = hashlib.sha1(string).hexdigest()
         if self.signature == hashcode:
             self.return_code = self.echostr
+
+    def get_token(self):
+        url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={}&secret={}'.format(
+            self.app_id, self.app_secret)
+        result = requests.get(url).text
+        token = json.loads(result).get('access_token')
+        return token

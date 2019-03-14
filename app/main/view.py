@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-02-15 20:04:12
-# @Last Modified time: 2019-03-14 18:58:48
+# @Last Modified time: 2019-03-14 20:42:32
 from flask import Blueprint, request
 from app.main.operations import init_room, enter_room, update_room
 from app.models.verify import Verify
 from app.models.reply import Reply
+import requests
 
 bp = Blueprint('main', __name__)
 
@@ -13,6 +14,31 @@ bp = Blueprint('main', __name__)
 @bp.route('/')
 def test():
     return 'test'
+
+
+@bp.route('/create_menu')
+def create_menu():
+    vertify = Verify()
+
+    token = vertify.get_token()
+    url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token={}'.format(
+        token)
+    data = {
+        'button': [
+            {
+                'type': 'click',
+                'name': '谁是卧底',
+                'key': '"'play_shuishiwodi'"'
+            },
+        ]
+    }
+
+    headers = {
+        'Content-Type': 'application/json',
+        'encoding': 'utf-8'
+    }
+    r = requests.post(url, data=data, headers=headers)
+    return r.text
 
 
 @bp.route('/message', methods=['GET', 'POST'])
