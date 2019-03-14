@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-03-09 15:47:02
-# @Last Modified time: 2019-03-14 19:17:54
+# @Last Modified time: 2019-03-14 19:24:36
 from app import db
 import time
 from app.models.room import Room
@@ -133,7 +133,7 @@ def enter_room(room_id, uid):
     return message
 
 
-def update_room(uid, good_word=None, bad_word=None, white=False):
+def update_room(uid, good_word=None, bad_word=None):
     delete_room()
     exist_room = Room.query.filter_by(owner_id=uid).first()
 
@@ -151,13 +151,14 @@ def update_room(uid, good_word=None, bad_word=None, white=False):
 
     num = exist_room.num
     room_id = exist_room.room_id
+    white = exist_room.white_number
     bad_num = 0
     if num < 7:
         bad_num = 1
     elif num >= 7:
         bad_num = 2
 
-    if white:
+    if white != -1:
         bad_number = sample(range(num), bad_num + 1)
         white_number = bad_number[-1] + 1
         bad_number = bad_number[:-1]
