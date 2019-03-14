@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 # @Author: LogicJake
 # @Date:   2019-02-15 20:04:12
-# @Last Modified time: 2019-03-14 20:42:32
+# @Last Modified time: 2019-03-14 21:17:03
 from flask import Blueprint, request
 from app.main.operations import init_room, enter_room, update_room
 from app.models.verify import Verify
 from app.models.reply import Reply
 import requests
+import json
+import os
 
 bp = Blueprint('main', __name__)
 
@@ -18,7 +20,7 @@ def test():
 
 @bp.route('/create_menu')
 def create_menu():
-    vertify = Verify()
+    vertify = Verify(request)
 
     token = vertify.get_token()
     url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token={}'.format(
@@ -28,7 +30,7 @@ def create_menu():
             {
                 'type': 'click',
                 'name': '谁是卧底',
-                'key': '"'play_shuishiwodi'"'
+                'key': 'play_shuishiwodi'
             },
         ]
     }
@@ -62,10 +64,37 @@ def message():
             elif ss[0] == 'change':
                 reply_content = parse_change(message)
             else:
-                reply_content = '???????'
+                reply_content = auto_reply(content)
 
             message.text(reply_content)
             return message.reply()
+
+
+def auto_reply(content):
+    api_url = "http://openapi.tuling123.com/openapi/api/v2"
+
+    req = {
+        'perception':
+        {
+            'inputText':
+            {
+                'text': content
+            }
+        },
+
+        'userInfo':
+        {
+            'apiKey': os.getenv('TULING_KEY'),
+            'userId': 'OnlyUseAlphabet'
+        }
+    }
+
+    data = json.dumps(req).encode('utf8')
+    response = requests.post(api_url, data=data, headers={
+        'content-type': 'application/json'}).text
+    response = json.loads(response)
+    response_text = response['results'][0]['values']['text']
+    return response_text
 
 
 def parse_change(message):
