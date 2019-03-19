@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/LogicJake/who-is-undercover.svg?branch=master)](https://travis-ci.org/LogicJake/who-is-undercover)  
+[![Build Status](https://travis-ci.org/LogicJake/wechat_server.svg?branch=master)](https://travis-ci.org/LogicJake/wechat_server)
 
 # 支持功能
 ## 谁是卧底游戏助手
