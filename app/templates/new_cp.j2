@@ -1,0 +1,18 @@
+<h1 style="font-weight: bold;font-size: 28px;"> 新上线比赛</h1>
+更新时间: {{update}}
+<br>
+<br>
+{% if competitions|length > 0 %}
+{% for competition in competitions %}
+<h2 style="font-weight: bold;font-size: 24px;"> {{competition.name}} </h2>
+{{competition.url}}
+<h3 style="font-weight: bold;font-size: 20px;">Description</h3>
+{{competition.description}}
+<h3 style="font-weight: bold;font-size: 20px;">Deadline: {{competition.deadline}}</h3>
+<h3 style="font-weight: bold;font-size: 20px;">Reward: {{competition.reward}}</h3>
+<br>
+<br>
+{% endfor %}
+{% else %}
+> 暂无新上线比赛！
+{% endif %}

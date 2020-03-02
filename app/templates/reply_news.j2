@@ -1,0 +1,19 @@
+<MsgType><![CDATA[news]]></MsgType>
+<ArticleCount>{{newss|length}}</ArticleCount>
+<Articles>
+{% for news in newss %}
+
+<item>
+    <Title><![CDATA[{{news.title}}]]></Title>
+    <Description><![CDATA[{{news.description}}]]></Description>
+    {% if news.picurl %}
+    <PicUrl><![CDATA[{{news.picurl}}]]></PicUrl>
+    {% endif %}
+    {% if news.url %}
+    <Url><![CDATA[{{news.url}}]]></Url>
+    {% endif %}
+</item>
+
+{% endfor %}
+</Articles>
+</xml>
