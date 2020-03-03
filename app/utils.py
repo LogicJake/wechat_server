@@ -118,7 +118,7 @@ def update_competition():
     new_completions = response.json()
 
     template = env.get_template('new_cp.j2')
-    content = template.render(new_completions=new_completions, update=update)
+    content = template.render(competitions=new_completions, update=update)
     if '新上线比赛' not in simle_news_list.keys():
         data = {
             "articles": [{
