@@ -24,7 +24,7 @@ def message():
 
     news_keyword = {
         'title': '关键词回复',
-        'description': '回复 竞赛 查看竞赛列表,回复 新竞赛 查看今日上新竞赛'
+        'description': '回复 竞赛 查看各大竞赛平台竞赛信息,回复 新竞赛 查看今日上新竞赛'
     }
 
     news_competition = {
@@ -69,7 +69,7 @@ def message():
                             'description': c['description'],
                             'url': c['url']
                         })
-                    message.news([news_blank])
+                    message.news(ns)
                     return message.reply()
             elif '竞赛' == message.content:
                 message.news([news_competition])
