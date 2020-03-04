@@ -1,3 +1,4 @@
+import requests
 from flask import Blueprint, request
 from werkzeug.contrib.cache import SimpleCache
 
@@ -21,6 +22,11 @@ def message():
         'description': '本公众号主要分享个人博客和汇总各大数据竞赛平台比赛信息'
     }
 
+    news_keyword = {
+        'title': '关键词回复',
+        'description': '回复 竞赛 查看竞赛列表,回复 新竞赛 查看今日上新竞赛'
+    }
+
     news_competition = {
         'title':
         '一站式显示各大平台竞赛信息',
@@ -37,15 +43,43 @@ def message():
     else:
         message = Reply(request)
         if message.msg_type == 'text':
-            if '竞赛' in message.content:
+            if '关键词' == message.content:
+                message.news([news_keyword])
+                return message.reply()
+            elif '新竞赛' == message.content:
+                response = requests.get(
+                    'https://www.logicjake.xyz/MLCompetitionHub/new.json')
+                new_completions = response.json()
+                if len(new_completions) == 0:
+                    news_blank = {
+                        'title':
+                        '暂无新比赛上线',
+                        'description':
+                        '暂无新比赛上线',
+                        'url':
+                        'https://www.logicjake.xyz/MLCompetitionHub/#/new_competition'
+                    }
+                    message.news([news_blank])
+                    return message.reply()
+                else:
+                    ns = []
+                    for c in new_completions:
+                        ns.append({
+                            'title': c['name'],
+                            'description': c['description'],
+                            'url': c['url']
+                        })
+                    message.news([news_blank])
+                    return message.reply()
+            elif '竞赛' == message.content:
                 message.news([news_competition])
                 return message.reply()
 
-            message.text(message.content)
+            message.text('我不明白')
             return message.reply()
         elif message.msg_type == 'event':
             if message.event == 'subscribe':
-                message.news([news_welcome, news_competition])
+                message.news([news_welcome, news_keyword, news_competition])
                 return message.reply()
 
 
