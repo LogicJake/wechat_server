@@ -27,7 +27,7 @@ def message():
         'description':
         '一站式显示各大平台竞赛信息',
         'url':
-        'https://mp.weixin.qq.com/mp/homepage?__biz=MzI0OTY5MTE5Mw==&hid=2&sn=ba68ad4bdbe01177f67dff92af8e3725'
+        'https://mp.weixin.qq.com/mp/homepage?__biz=MzU0MjE2MzcxMA==&hid=1&sn=71e111a995a23fa891deebc66663c94a'
     }
 
     if request.method == "GET":

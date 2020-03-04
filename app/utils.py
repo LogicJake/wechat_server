@@ -63,7 +63,7 @@ def update_competition():
                     "title":
                     '{}进行中的比赛'.format(name),
                     "thumb_media_id":
-                    'aZ5UXbj0KO32jDkGe3-LcQNUmGCRhEUBrA47LJ7WB9Q',
+                    'WvZIHWfBIDIy5AYZtBqmwfZYx2miG846tv1gh7wkUfo',
                     "author":
                     'LogicJake',
                     "show_cover_pic":
