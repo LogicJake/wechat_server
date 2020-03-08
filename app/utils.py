@@ -7,6 +7,7 @@ from jinja2 import Environment, PackageLoader
 from werkzeug.contrib.cache import SimpleCache
 
 STANDARD_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S+08:00'
+fix_head_media = WvZIHWfBIDIy5AYZtBqmwfZYx2miG846tv1gh7wkUfo
 
 
 def update_competition():
@@ -63,7 +64,7 @@ def update_competition():
                     "title":
                     '{}进行中的比赛'.format(name),
                     "thumb_media_id":
-                    'WvZIHWfBIDIy5AYZtBqmwfZYx2miG846tv1gh7wkUfo',
+                    fix_head_media,
                     "author":
                     'LogicJake',
                     "show_cover_pic":
@@ -81,7 +82,7 @@ def update_competition():
                 data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
                 headers=headers,
             )
-            print(response.status_code)
+            print(response.text)
         else:
             title = '{}进行中的比赛'.format(name)
             # 更新素材
@@ -92,7 +93,7 @@ def update_competition():
                     "title":
                     title,
                     "thumb_media_id":
-                    simle_news_list[title]['thumb_media_id'],
+                    fix_head_media,
                     "author":
                     simle_news_list[title]['author'],
                     "show_cover_pic":
@@ -109,7 +110,7 @@ def update_competition():
                 data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
                 headers=headers,
             )
-            print('更新', response.status_code)
+            print('更新', response.text)
     print('更新各大平台结束')
 
     # 新上新比赛
@@ -125,7 +126,7 @@ def update_competition():
                 "title":
                 '新上线比赛',
                 "thumb_media_id":
-                'aZ5UXbj0KO32jDkGe3-LcQNUmGCRhEUBrA47LJ7WB9Q',
+                fix_head_media,
                 "author":
                 'LogicJake',
                 "show_cover_pic":
@@ -142,7 +143,7 @@ def update_competition():
             data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
             headers=headers,
         )
-        print(response.status_code)
+        print(response.text)
     else:
         title = '新上线比赛'
         data = {
@@ -150,7 +151,7 @@ def update_competition():
             "index": 0,
             "articles": {
                 "title": title,
-                "thumb_media_id": simle_news_list[title]['thumb_media_id'],
+                "thumb_media_id": fix_head_media,
                 "author": simle_news_list[title]['author'],
                 "show_cover_pic": simle_news_list[title]['show_cover_pic'],
                 "content": content,
@@ -164,7 +165,7 @@ def update_competition():
             data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
             headers=headers,
         )
-        print('更新', response.status_code)
+        print('更新', response.text)
     print('更新新上线比赛结束')
 
 
