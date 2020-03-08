@@ -7,7 +7,7 @@ from jinja2 import Environment, PackageLoader
 from werkzeug.contrib.cache import SimpleCache
 
 STANDARD_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S+08:00'
-fix_head_media = WvZIHWfBIDIy5AYZtBqmwfZYx2miG846tv1gh7wkUfo
+fix_head_media = 'WvZIHWfBIDIy5AYZtBqmwfZYx2miG846tv1gh7wkUfo'
 
 
 def update_competition():
