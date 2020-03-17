@@ -1,4 +1,5 @@
 import json
+import math
 import os
 from datetime import datetime, timedelta
 
@@ -19,18 +20,32 @@ def update_competition():
     plateforms = response.json()
 
     headers = {'Content-Type': 'application/json'}
-    data = {"type": "news", "offset": 0, "count": 1000}
+    data = {"type": "news", "offset": 0, "count": 20}
     response = requests.post(
         'https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token={}'
         .format(token),
         data=json.dumps(data),
         headers=headers)
     response.encoding = 'utf-8'
-    news_list = response.json()['item']
+    total_count = response.json()['total_count']
 
+    news_list = []
+    pages = math.ceil()(total_count / 20)
+    for p in range(pages):
+        data = {"type": "news", "offset": p * 20, "count": 20}
+        response = requests.post(
+            'https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token={}'
+            .format(token),
+            data=json.dumps(data),
+            headers=headers)
+        response.encoding = 'utf-8'
+        news_list += response.json()['item']
+
+    ids = []
     simle_news_list = {}
     for news in news_list:
         media_id = news['media_id']
+        ids.append(media_id)
         title = news['content']['news_item'][0]['title']
         author = news['content']['news_item'][0]['author']
         content_source_url = news['content']['news_item'][0][
@@ -46,6 +61,7 @@ def update_competition():
             'show_cover_pic': show_cover_pic
         }
 
+    print(len(set(ids)))
     env = Environment(loader=PackageLoader('app'))
     template = env.get_template('plateform.j2')
 
