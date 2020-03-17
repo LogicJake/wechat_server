@@ -30,7 +30,7 @@ def update_competition():
     total_count = response.json()['total_count']
 
     news_list = []
-    pages = math.ceil()(total_count / 20)
+    pages = math.ceil(total_count / 20)
     for p in range(pages):
         data = {"type": "news", "offset": p * 20, "count": 20}
         response = requests.post(
