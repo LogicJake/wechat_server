@@ -61,7 +61,7 @@ def update_competition():
             'show_cover_pic': show_cover_pic
         }
 
-    print(len(set(ids)))
+    print('总素材数量: ', len(set(ids)))
     env = Environment(loader=PackageLoader('app'))
     template = env.get_template('plateform.j2')
 
