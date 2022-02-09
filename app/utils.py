@@ -191,6 +191,7 @@ def update_cgx_new(cgx_list, content, token):
 
 def update_competition():
     token = get_token()
+    env = Environment(loader=PackageLoader('app'))
 
     twsc_list = get_all_exist_twsc(token)
     cgx_list = get_all_exist_cgx(token)
