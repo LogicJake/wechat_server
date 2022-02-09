@@ -207,7 +207,7 @@ def update_competition():
     content = template.render(competitions=new_completions, update=update)
     
     update_twsc_new(twsc_list, content, token)
-    update_twsc_new(cgx_list, content, token)
+    update_cgx_new(cgx_list, content, token)
 
     print('更新新上线比赛结束')
 
