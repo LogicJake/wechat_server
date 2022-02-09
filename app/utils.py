@@ -9,27 +9,20 @@ from werkzeug.contrib.cache import SimpleCache
 
 STANDARD_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S+08:00'
 fix_head_media = 'WvZIHWfBIDIy5AYZtBqmwfZYx2miG846tv1gh7wkUfo'
+HEADERS = {'Content-Type': 'application/json'}
 
 
-def update_competition():
-    token = get_token()
-
-    # 各平台比赛信息
-    response = requests.get(
-        'https://www.logicjake.xyz/MLCompetitionHub/all.json')
-    plateforms = response.json()
-
-    headers = {'Content-Type': 'application/json'}
+def get_all_exist_twsc(token):
     data = {"type": "news", "offset": 0, "count": 20}
     response = requests.post(
         'https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token={}'
         .format(token),
         data=json.dumps(data),
-        headers=headers)
+        headers=HEADERS)
     response.encoding = 'utf-8'
     total_count = response.json()['total_count']
 
-    news_list = []
+    material_list = []
     pages = math.ceil(total_count / 20)
     for p in range(pages):
         data = {"type": "news", "offset": p * 20, "count": 20}
@@ -37,23 +30,21 @@ def update_competition():
             'https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token={}'
             .format(token),
             data=json.dumps(data),
-            headers=headers)
+            headers=HEADERS)
         response.encoding = 'utf-8'
-        news_list += response.json()['item']
+        material_list += response.json()['item']
 
-    ids = []
-    simle_news_list = {}
-    for news in news_list:
-        media_id = news['media_id']
-        ids.append(media_id)
-        title = news['content']['news_item'][0]['title']
-        author = news['content']['news_item'][0]['author']
-        content_source_url = news['content']['news_item'][0][
+    twsc_list = {}
+    for material in material_list:
+        media_id = material['media_id']
+        title = material['content']['news_item'][0]['title']
+        author = material['content']['news_item'][0]['author']
+        content_source_url = material['content']['news_item'][0][
             'content_source_url']
-        thumb_media_id = news['content']['news_item'][0]['thumb_media_id']
-        show_cover_pic = news['content']['news_item'][0]['show_cover_pic']
+        thumb_media_id = material['content']['news_item'][0]['thumb_media_id']
+        show_cover_pic = material['content']['news_item'][0]['show_cover_pic']
 
-        simle_news_list[title] = {
+        twsc_list[title] = {
             'media_id': media_id,
             'author': author,
             'content_source_url': content_source_url,
@@ -61,82 +52,50 @@ def update_competition():
             'show_cover_pic': show_cover_pic
         }
 
-    print('总素材数量: ', len(set(ids)))
-    env = Environment(loader=PackageLoader('app'))
-    template = env.get_template('plateform.j2')
+    return twsc_list
 
-    for plateform in plateforms:
-        name = plateform['name']
-        completions = plateform['competitions']
-        update = datetime.utcnow() + timedelta(hours=8)
-        update = update.strftime(STANDARD_TIME_FORMAT)
-        content = template.render(competitions=completions,
-                                  name=name,
-                                  update=update)
+def get_all_exist_cgx(token):
+    response = requests.post(
+        'https://api.weixin.qq.com/cgi-bin/draft/count?access_token={}'
+        .format(token),
+        headers=HEADERS)
+    response.encoding = 'utf-8'
+    total_count = response.json()['total_count']
 
-        if '{}进行中的比赛'.format(name) not in simle_news_list.keys():
-            data = {
-                "articles": [{
-                    "title":
-                    '{}进行中的比赛'.format(name),
-                    "thumb_media_id":
-                    fix_head_media,
-                    "author":
-                    'LogicJake',
-                    "show_cover_pic":
-                    0,
-                    "content":
-                    content,
-                    "content_source_url":
-                    'https://www.logicjake.xyz/MLCompetitionHub/#/competition/{}'
-                    .format(name.replace(' ', '_'))
-                }]
-            }
-            response = requests.post(
-                'https://api.weixin.qq.com/cgi-bin/material/add_news?access_token={}'
-                .format(token),
-                data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
-                headers=headers,
-            )
-            print(response.text)
-        else:
-            title = '{}进行中的比赛'.format(name)
-            # 更新素材
-            data = {
-                'media_id': simle_news_list[title]['media_id'],
-                "index": 0,
-                "articles": {
-                    "title":
-                    title,
-                    "thumb_media_id":
-                    fix_head_media,
-                    "author":
-                    simle_news_list[title]['author'],
-                    "show_cover_pic":
-                    simle_news_list[title]['show_cover_pic'],
-                    "content":
-                    content,
-                    "content_source_url":
-                    simle_news_list[title]['content_source_url'],
-                }
-            }
-            response = requests.post(
-                ' https://api.weixin.qq.com/cgi-bin/material/update_news?access_token={}'
-                .format(token),
-                data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
-                headers=headers,
-            )
-            print('更新', response.text)
-    print('更新各大平台结束')
+    draft_list = []
+    pages = math.ceil(total_count / 20)
+    for p in range(pages):
+        data = {"offset": p * 20, "count": 20}
+        response = requests.post(
+            'https://api.weixin.qq.com/cgi-bin/draft/batchget?access_token={}'
+            .format(token),
+            data=json.dumps(data),
+            headers=HEADERS)
+        response.encoding = 'utf-8'
+        draft_list += response.json()['item']
 
-    # 新上新比赛
-    response = requests.get(
-        'https://www.logicjake.xyz/MLCompetitionHub/new.json')
-    new_completions = response.json()
+    cgx_list = {}
+    for draft in draft_list:
+        media_id = draft['media_id']
+        title = draft['content']['news_item'][0]['title']
+        author = draft['content']['news_item'][0]['author']
+        content_source_url = draft['content']['news_item'][0][
+            'content_source_url']
+        thumb_media_id = draft['content']['news_item'][0]['thumb_media_id']
+        show_cover_pic = draft['content']['news_item'][0]['show_cover_pic']
 
-    template = env.get_template('new_cp.j2')
-    content = template.render(competitions=new_completions, update=update)
-    if '新上线比赛' not in simle_news_list.keys():
+        cgx_list[title] = {
+            'media_id': media_id,
+            'author': author,
+            'content_source_url': content_source_url,
+            'thumb_media_id': thumb_media_id,
+            'show_cover_pic': show_cover_pic
+        }
+
+    return cgx_list
+
+def update_twsc_new(twsc_list, content, token):
+    if '新上线比赛' not in twsc_list.keys():
         data = {
             "articles": [{
                 "title":
@@ -157,31 +116,98 @@ def update_competition():
             'https://api.weixin.qq.com/cgi-bin/material/add_news?access_token={}'
             .format(token),
             data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
-            headers=headers,
+            headers=HEADERS,
         )
         print(response.text)
     else:
         title = '新上线比赛'
         data = {
-            'media_id': simle_news_list[title]['media_id'],
+            'media_id': twsc_list[title]['media_id'],
             "index": 0,
             "articles": {
                 "title": title,
                 "thumb_media_id": fix_head_media,
-                "author": simle_news_list[title]['author'],
-                "show_cover_pic": simle_news_list[title]['show_cover_pic'],
+                "author": twsc_list[title]['author'],
+                "show_cover_pic": twsc_list[title]['show_cover_pic'],
                 "content": content,
                 "content_source_url":
-                simle_news_list[title]['content_source_url'],
+                twsc_list[title]['content_source_url'],
             }
         }
         response = requests.post(
             ' https://api.weixin.qq.com/cgi-bin/material/update_news?access_token={}'
             .format(token),
             data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
-            headers=headers,
+            headers=HEADERS,
         )
         print('更新', response.text)
+
+def update_cgx_new(cgx_list, content, token):
+    if '新上线比赛' not in cgx_list.keys():
+        data = {
+            "articles": [{
+                "title":
+                '新上线比赛',
+                "thumb_media_id":
+                fix_head_media,
+                "author":
+                'LogicJake',
+                "content":
+                content,
+                "content_source_url":
+                'https://www.logicjake.xyz/MLCompetitionHub/#/new_competition'
+            }]
+        }
+        response = requests.post(
+            'https://api.weixin.qq.com/cgi-bin/draft/add?access_token={}'
+            .format(token),
+            data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
+            headers=HEADERS,
+        )
+        print(response.text)
+    else:
+        title = '新上线比赛'
+        data = {
+            'media_id': cgx_list[title]['media_id'],
+            "index": 0,
+            "articles": {
+                "title": title,
+                "thumb_media_id": fix_head_media,
+                "author": cgx_list[title]['author'],
+                "show_cover_pic": cgx_list[title]['show_cover_pic'],
+                "content": content,
+                "content_source_url":
+                cgx_list[title]['content_source_url'],
+            }
+        }
+        response = requests.post(
+            'https://api.weixin.qq.com/cgi-bin/draft/update?access_token={}'
+            .format(token),
+            data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
+            headers=HEADERS,
+        )
+        print('更新', response.text)
+
+
+def update_competition():
+    token = get_token()
+
+    twsc_list = get_all_exist_twsc(token)
+    cgx_list = get_all_exist_cgx(token)
+
+    # 新上新比赛
+    response = requests.get(
+        'https://www.logicjake.xyz/MLCompetitionHub/new.json')
+    new_completions = response.json()
+
+    template = env.get_template('new_cp.j2')
+    update = datetime.utcnow() + timedelta(hours=8)
+    update = update.strftime(STANDARD_TIME_FORMAT)
+    content = template.render(competitions=new_completions, update=update)
+    
+    update_twsc_new(twsc_list, content, token)
+    update_twsc_new(cgx_list, content, token)
+
     print('更新新上线比赛结束')
 
 
