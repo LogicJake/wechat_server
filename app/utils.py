@@ -118,7 +118,7 @@ def update_twsc_new(twsc_list, content, token):
             data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
             headers=HEADERS,
         )
-        print(response.text)
+        print('图文素材新增', response.text)
     else:
         title = '新上线比赛'
         data = {
@@ -140,7 +140,7 @@ def update_twsc_new(twsc_list, content, token):
             data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
             headers=HEADERS,
         )
-        print('更新', response.text)
+        print('图文素材更新', response.text)
 
 def update_cgx_new(cgx_list, content, token):
     if '新上线比赛' not in cgx_list.keys():
@@ -164,7 +164,7 @@ def update_cgx_new(cgx_list, content, token):
             data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
             headers=HEADERS,
         )
-        print(response.text)
+        print('草稿箱新增', response.text)
     else:
         title = '新上线比赛'
         data = {
@@ -186,7 +186,7 @@ def update_cgx_new(cgx_list, content, token):
             data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
             headers=HEADERS,
         )
-        print('更新', response.text)
+        print('草稿箱更新', response.text)
 
 
 def update_competition():
