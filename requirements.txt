@@ -6,7 +6,7 @@ gunicorn==19.9.0
 psycopg2==2.7.7
 requests>=2.20.0
 chardet==3.0.4
-lxml==4.3.2
+lxml==4.9.1
 cssselect==1.1.0
 bs4==0.0.1
 leancloud-sdk==1.13.0
